@@ -11,8 +11,8 @@ public:
     Stick();
     sf::RectangleShape get(); //returns rectangle of stick
     void flash(); //makes stick rectangle blink to show it's ontop of another
-    float getX();
-    float getY();
+    location getLocation();
+//    float getY();
     void draw(sf::RenderWindow & window);
     bool getFlash();
 private:

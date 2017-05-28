@@ -2,9 +2,10 @@
 
 Stick::Stick()
 {
-    int xPos = (std::rand() % (BOARD_X - 2*((int)STICK_SIZE.y))) + (int)STICK_SIZE.y;
-    int yPos = (std::rand() % (BOARD_Y - 2*((int)STICK_SIZE.y))) + (int)STICK_SIZE.y;
+    int xPos = (std::rand() % (BOARD_X - (int)STICK_SIZE.y)) + (int)STICK_SIZE.y/2;
+    int yPos = (std::rand() % (BOARD_Y - (int)STICK_SIZE.y)) + (int)STICK_SIZE.y/2;
     
+    m_rectangle.setOrigin(STICK_SIZE.x / 2, STICK_SIZE.y / 2);
     m_rectangle.setPosition(xPos, yPos);
     m_rectangle.setSize(STICK_SIZE);
     m_rectangle.setFillColor(sf::Color (std::rand() % 255, std::rand() % 255, std::rand() % 255));
@@ -29,15 +30,15 @@ sf::RectangleShape Stick::get()
     return m_rectangle;
 }
 
-float Stick::getX()
+location Stick::getLocation()
 {
-    return m_rectangle.getPosition().x;
+    return std::pair<float,float>(m_rectangle.getPosition().x, m_rectangle.getPosition().y);
 }
 
-float Stick::getY()
-{
-    return m_rectangle.getPosition().y;
-}
+//float Stick::getY()
+//{
+//    return m_rectangle.getPosition().y;
+//}
 
 void Stick::draw(sf::RenderWindow & window)
 {

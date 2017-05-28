@@ -23,5 +23,5 @@ private:
     stickVector m_sticks;
     
     //hold a data structure of pointers to the sorted based on x-ints of sticks' centres
-    coordinateMap m_xSortedSticks;
+    xCoordinateMap m_xSortedSticks;
 };

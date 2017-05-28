@@ -9,9 +9,17 @@ Board::Board()
         Stick s;
         std::pair<int, Stick> sPair(i, s);
         m_sticks.push_back(sPair);
-        m_xSortedSticks.insert(coordinateMap::value_type(s.getX(), & sPair));
-//        m_ySortedSticks.insert(coordinateMap::value_type(s.getY(), & sPair));
+        m_xSortedSticks.insert(xCoordinateMap::value_type(s.getLocation(), & sPair));
     }
+    
+    for (xCoordinateMap::const_iterator i = m_xSortedSticks.lower_bound(location(0, 1));
+         i !=  m_xSortedSticks.upper_bound(location(BOARD_X, 1)); ++i)
+    {
+        std::cout << "added stick to Xmap @" << (i->first).first << std::endl;
+//        ySortedSticks.insert(*i);
+    }
+    std::cout << std::endl;
+
 }
 
 void Board::draw(sf::RenderWindow & window)
@@ -31,15 +39,33 @@ void Board::collisionCheck(sf::Vector2i MousePos)
     subMap::const_iterator up = subSet.end();
     subMap::const_iterator i = low;
     
-    //iterate through the subset, and see if the mouse is touching any stick
-    while (i != up && !(i->second->second.get().getGlobalBounds().contains(MousePos.x,MousePos.y)))
+    for (subMap::const_iterator p = subSet.begin(); p != subSet.end(); ++p)
     {
-        ++i;
+        std::cout<< "looped" << std::endl;
+
+        if ((p->second->second.get().getGlobalBounds().contains(MousePos.x,MousePos.y)))
+        {
+            i = p;
+            break;
+        }
     }
+    
+    //iterate through the subset, and see if the mouse is touching any stick
+//    while (i != up || !(i->second->second.get().getGlobalBounds().contains(MousePos.x,MousePos.y)))
+//    {
+//        ++i;
+//    }
+//    
+    std::cout<< "subset made!" << std::endl;
+
     
     //if the mouse isn't touching a stick, exit the function
     if (!(i->second->second.get().getGlobalBounds().contains(MousePos.x,MousePos.y)))
         return;
+    
+    std::cout << "Mouse @ (" << MousePos.x << "," << MousePos.y << ")" << std::endl;
+    std::cout << "Stick @ (" << i->second->second.getLocation().first << "," << i->second->second.getLocation().second << ")" << std::endl;
+
     
     bool covered = false;
     
@@ -65,24 +91,29 @@ void Board::collisionCheck(sf::Vector2i MousePos)
 
 subMap Board::makeSubset(sf::Vector2i MousePos)
 {
+//    std::cout << "Mouse @ (" << MousePos.x << "," << MousePos.y << ")" << std::endl;
+    
+    yCoordinateMap ySortedSticks;
+    
+    for (xCoordinateMap::const_iterator i = m_xSortedSticks.lower_bound(location(MousePos.x - STICK_SIZE.y, 1));
+         i !=  m_xSortedSticks.upper_bound(location(MousePos.x + STICK_SIZE.y, 1)); ++i)
+    {
+//        std::cout << "added stick to Ymap @ (" << (i->first).first << "," << (i->first).second << ")" << std::endl;
+        ySortedSticks.insert(*i);
+    }
+    
     subMap subSet;
     
-    //make iterators to iterate through all the sticks at the relavant x-variables
-    coordinateMap::const_iterator lowX = m_xSortedSticks.lower_bound(MousePos.x - STICK_SIZE.y);
-    coordinateMap::const_iterator upX = m_xSortedSticks.upper_bound(MousePos.x + STICK_SIZE.y);
+//    std::cout << std::endl;
     
-    //from all sticks in the x-area, make subset of sticks also in the y-area
-    for (coordinateMap::const_iterator i = lowX; i != upX; ++i)
+    for (yCoordinateMap::const_iterator i = ySortedSticks.lower_bound(location(1, MousePos.y - STICK_SIZE.y));
+         i !=  ySortedSticks.upper_bound(location(1, MousePos.y + STICK_SIZE.y)); ++i)
     {
-        float stickY = ((i -> second) -> second).getY();
-        float mouseY = MousePos.y;
-        
-        //after adding these, the subset will contain pointers to all the sticks in the range of the mouse
-        if ((stickY > (mouseY - STICK_SIZE.y)) && (stickY < (mouseY - STICK_SIZE.y)))
-        {
-            subSet.insert(std::pair<int, std::pair<int, Stick> *>(i->second->first, i->second));
-        }
+//        std::cout << "added stick to SubMap @ (" << (i->first).first << "," << (i->first).second << ")" << std::endl;
+        subSet.insert(subMap::value_type((i->second) -> first , i->second));
     }
+    
+
     
     return subSet;
 }
